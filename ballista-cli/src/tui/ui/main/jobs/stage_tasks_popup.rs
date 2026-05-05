@@ -35,10 +35,13 @@ pub(crate) fn render_stage_tasks_popup(f: &mut Frame, app: &App) {
         return;
     };
 
-    let area = crate::tui::ui::centered_rect(98, 55, f.area());
+    let area = crate::tui::ui::centered_rect(98, 70, f.area());
     f.render_widget(Clear, area);
 
-    let header_style = Style::default().fg(Color::Yellow).bg(Color::Black);
+    let header_style = Style::default()
+        .fg(Color::LightYellow)
+        .bg(Color::Black)
+        .bold();
     let header = [
         "Task ID",
         "Status",
@@ -87,7 +90,7 @@ pub(crate) fn render_stage_tasks_popup(f: &mut Frame, app: &App) {
                 stage.id, &popup.job_id
             ))
             .borders(Borders::ALL)
-            .border_style(Style::default().fg(Color::LightYellow))
+            .border_style(Style::default().fg(Color::Indexed(193)).bold())
             .border_type(BorderType::Thick),
     )
     .header(header)
@@ -106,8 +109,8 @@ fn build_stage_task_row(i: usize, task: &StageTaskResponse) -> Row<'static> {
 
     let status_color = match task.status.as_str() {
         "Running" => Color::LightBlue,
-        "Successful" | "Completed" => Color::Green,
-        "Failed" => Color::Red,
+        "Successful" | "Completed" => Color::LightGreen,
+        "Failed" => Color::LightRed,
         _ => Color::Gray,
     };
 
@@ -115,7 +118,7 @@ fn build_stage_task_row(i: usize, task: &StageTaskResponse) -> Row<'static> {
         Cell::from(Text::from(task.id.to_string()).centered()),
         Cell::from(
             Text::from(task.status.clone())
-                .style(Style::default().fg(status_color))
+                .style(Style::default().fg(status_color).bold())
                 .centered(),
         ),
         Cell::from(Text::from(human_readable_count(task.input_rows)).centered()),

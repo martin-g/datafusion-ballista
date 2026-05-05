@@ -34,14 +34,17 @@ pub(crate) fn render_job_stages_popup(f: &mut Frame, app: &App) {
     let area = crate::tui::ui::centered_rect(85, 70, f.area());
     f.render_widget(Clear, area);
 
-    let header_style = Style::default().fg(Color::Yellow).bg(Color::Black);
+    let header_style = Style::default()
+        .fg(Color::LightYellow)
+        .bg(Color::Black)
+        .bold();
     let header = [
         "Stage ID",
         "Status",
         "Input Rows",
         "Output Rows",
         "Elapsed Compute",
-        "Input percentiles\n(min/p25/med/p75/max ms)",
+        "Input percentiles\n(min/p25/med/p75/max)",
         "Duration percentiles\n(min/p25/med/p75/max ms)",
     ]
     .into_iter()
@@ -60,20 +63,20 @@ pub(crate) fn render_job_stages_popup(f: &mut Frame, app: &App) {
     let table = Table::new(
         rows,
         [
-            Constraint::Percentage(12),
             Constraint::Percentage(10),
             Constraint::Percentage(10),
             Constraint::Percentage(10),
-            Constraint::Percentage(17),
-            Constraint::Percentage(17),
-            Constraint::Percentage(24),
+            Constraint::Percentage(10),
+            Constraint::Percentage(10),
+            Constraint::Percentage(25),
+            Constraint::Percentage(25),
         ],
     )
     .block(
         Block::default()
             .title(format!(" Stages for job '{}' ", popup.job_id.clone()))
             .borders(Borders::ALL)
-            .border_style(Style::default().fg(Color::LightBlue))
+            .border_style(Style::default().fg(Color::LightBlue).bold())
             .border_type(BorderType::Thick),
     )
     .header(header)
@@ -93,8 +96,8 @@ fn build_stage_row(i: usize, stage: &JobStageResponse) -> Row<'static> {
 
     let status_color = match stage.status.as_str() {
         "Running" => Color::LightBlue,
-        "Successful" | "Completed" => Color::Green,
-        "Failed" => Color::Red,
+        "Successful" | "Completed" => Color::LightGreen,
+        "Failed" => Color::LightRed,
         _ => Color::Gray,
     };
 
@@ -102,14 +105,20 @@ fn build_stage_row(i: usize, stage: &JobStageResponse) -> Row<'static> {
     let duration_percentiles =
         format!("{}/{}/{}/{}/{}", p.min, p.p25, p.median, p.p75, p.max);
     let p = &stage.task_input_percentiles;
-    let input_percentiles =
-        format!("{}/{}/{}/{}/{}", p.min, p.p25, p.median, p.p75, p.max);
+    let input_percentiles = format!(
+        "{}/{}/{}/{}/{}",
+        human_readable_count(p.min.try_into().unwrap()),
+        human_readable_count(p.p25.try_into().unwrap()),
+        human_readable_count(p.median.try_into().unwrap()),
+        human_readable_count(p.p75.try_into().unwrap()),
+        human_readable_count(p.max.try_into().unwrap())
+    );
 
     Row::new(vec![
         Cell::from(Text::from(stage.id.clone()).centered()),
         Cell::from(
             Text::from(stage.status.clone())
-                .style(Style::default().fg(status_color))
+                .style(Style::default().fg(status_color).bold())
                 .centered(),
         ),
         Cell::from(Text::from(human_readable_count(stage.input_rows)).centered()),

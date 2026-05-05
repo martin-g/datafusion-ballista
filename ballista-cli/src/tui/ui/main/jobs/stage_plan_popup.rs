@@ -47,7 +47,7 @@ fn render_plans(f: &mut Frame, area: Rect, app: &App) {
     let block = Block::default()
         .title(title)
         .borders(Borders::ALL)
-        .border_style(Style::default().fg(Color::Cyan))
+        .border_style(Style::default().fg(Color::LightCyan))
         .border_type(BorderType::Thick);
 
     let paragraph = Paragraph::new(stage.plan.clone()).block(block);

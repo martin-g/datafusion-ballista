@@ -53,7 +53,7 @@ fn render_plans(f: &mut Frame, area: Rect, job_plans: &JobPlansPopup) {
     let block = Block::default()
         .title(title)
         .borders(Borders::ALL)
-        .border_style(Style::default().fg(Color::Cyan))
+        .border_style(Style::default().fg(Color::LightCyan))
         .border_type(BorderType::Thick);
 
     let paragraph = Paragraph::new(plan)

@@ -185,7 +185,10 @@ fn render_jobs_table(
     sort_column: &SortColumn,
     sort_order: &SortOrder,
 ) {
-    let header_style = Style::default().fg(Color::Yellow).bg(Color::Black);
+    let header_style = Style::default()
+        .fg(Color::LightYellow)
+        .bg(Color::Black)
+        .bold();
 
     let id_suffix = column_suffix(sort_column, sort_order, &SortColumn::Id);
     let name_suffix = column_suffix(sort_column, sort_order, &SortColumn::Name);
@@ -283,12 +286,12 @@ fn render_job_stage_completion_cell(job: &Job) -> Cell<'_> {
 fn render_job_status_cell(job: &Job) -> Cell<'_> {
     let color = match job.status.as_str() {
         "Running" => Color::LightBlue,
-        "Queued" => Color::Magenta,
-        "Failed" => Color::Red,
-        "Completed" => Color::Green,
+        "Queued" => Color::LightMagenta,
+        "Failed" => Color::LightRed,
+        "Completed" => Color::LightGreen,
         _ => Color::Gray,
     };
-    let text = Text::from(job.status.clone()).style(Style::default().fg(color));
+    let text = Text::from(job.status.clone()).style(Style::default().fg(color).bold());
     Cell::from(text.centered())
 }
 

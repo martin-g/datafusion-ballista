@@ -33,7 +33,7 @@ pub(crate) fn render_job_dot_popup(f: &mut Frame, app: &App) {
     let block = Block::default()
         .title(format!(" Stages graph for job '{}' ", graph.job_id))
         .borders(Borders::ALL)
-        .border_style(Style::default().fg(Color::Cyan))
+        .border_style(Style::default().fg(Color::LightCyan))
         .border_type(BorderType::Thick);
 
     // Width of the area inside the popup block borders.
