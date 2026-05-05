@@ -29,7 +29,11 @@ pub fn render_scheduler_state(f: &mut Frame, area: Rect, app: &App) -> bool {
         match &app.executors_data.scheduler_state {
             Some(state) => {
                 let started = DateTime::from_timestamp_millis(state.started)
-                    .map(|dt| dt.format("%Y-%m-%d %H:%M:%S UTC").to_string())
+                    .map(|dt| {
+                        dt.with_timezone(&chrono::Local)
+                            .format("%Y-%m-%d %H:%M:%S")
+                            .to_string()
+                    })
                     .unwrap_or_else(|| "Invalid Date".to_string());
                 (
                     started,

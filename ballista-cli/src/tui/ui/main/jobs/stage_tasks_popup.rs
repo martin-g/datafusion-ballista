@@ -136,12 +136,20 @@ fn build_stage_task_row(i: usize, task: &StageTaskResponse) -> Row<'static> {
 
 fn format_datetime(dt: u64) -> String {
     chrono::DateTime::from_timestamp_millis(dt.try_into().unwrap_or(0))
-        .map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string())
+        .map(|dt| {
+            dt.with_timezone(&chrono::Local)
+                .format("%Y-%m-%d %H:%M:%S")
+                .to_string()
+        })
         .unwrap_or_else(|| "Invalid Date".to_string())
 }
 
 fn format_time(dt: u64) -> String {
     chrono::DateTime::from_timestamp_millis(dt.try_into().unwrap_or(0))
-        .map(|dt| dt.format("%H:%M:%S").to_string())
+        .map(|dt| {
+            dt.with_timezone(&chrono::Local)
+                .format("%H:%M:%S")
+                .to_string()
+        })
         .unwrap_or_else(|| "Invalid Date".to_string())
 }
