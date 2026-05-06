@@ -65,7 +65,7 @@ pub(crate) fn render_stage_tasks_popup(f: &mut Frame, app: &App) {
         .tasks
         .iter()
         .enumerate()
-        .map(|(i, task)| build_stage_task_row(i, task));
+        .map(|(i, task)| build_stage_task_row(i, task, app));
 
     let table = Table::new(
         rows,
@@ -100,7 +100,7 @@ pub(crate) fn render_stage_tasks_popup(f: &mut Frame, app: &App) {
     f.render_widget(table, area);
 }
 
-fn build_stage_task_row(i: usize, task: &StageTaskResponse) -> Row<'static> {
+fn build_stage_task_row(i: usize, task: &StageTaskResponse, app: &App) -> Row<'static> {
     let bg = if i.is_multiple_of(2) {
         Color::DarkGray
     } else {
@@ -125,31 +125,19 @@ fn build_stage_task_row(i: usize, task: &StageTaskResponse) -> Row<'static> {
         Cell::from(Text::from(human_readable_count(task.output_rows)).centered()),
         Cell::from(Text::from(task.partition_id.to_string()).centered()),
         // Cell::from(Text::from(format_datetime(task.scheduled_time)).centered()),
-        Cell::from(Text::from(format_datetime(task.launch_time)).centered()),
-        Cell::from(Text::from(format_datetime(task.start_exec_time)).centered()),
-        Cell::from(Text::from(format_time(task.end_exec_time)).centered()),
+        Cell::from(Text::from(format_datetime(task.launch_time, app)).centered()),
+        Cell::from(Text::from(format_datetime(task.start_exec_time, app)).centered()),
+        Cell::from(Text::from(format_time(task.end_exec_time, app)).centered()),
         Cell::from(Text::from(task.exec_duration.to_string()).centered()),
-        Cell::from(Text::from(format_time(task.finish_time)).centered()),
+        Cell::from(Text::from(format_time(task.finish_time, app)).centered()),
     ])
     .style(Style::default().bg(bg))
 }
 
-fn format_datetime(dt: u64) -> String {
-    chrono::DateTime::from_timestamp_millis(dt.try_into().unwrap_or(0))
-        .map(|dt| {
-            dt.with_timezone(&chrono::Local)
-                .format("%Y-%m-%d %H:%M:%S")
-                .to_string()
-        })
-        .unwrap_or_else(|| "Invalid Date".to_string())
+fn format_datetime(dt: u64, app: &App) -> String {
+    app.format_datetime(dt.try_into().unwrap_or(0))
 }
 
-fn format_time(dt: u64) -> String {
-    chrono::DateTime::from_timestamp_millis(dt.try_into().unwrap_or(0))
-        .map(|dt| {
-            dt.with_timezone(&chrono::Local)
-                .format("%H:%M:%S")
-                .to_string()
-        })
-        .unwrap_or_else(|| "Invalid Date".to_string())
+fn format_time(dt: u64, app: &App) -> String {
+    app.format_time(dt.try_into().unwrap_or(0))
 }

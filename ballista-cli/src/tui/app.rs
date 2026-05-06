@@ -32,6 +32,7 @@ use crate::tui::{
     event::Event,
     infrastructure::Settings,
 };
+use chrono::DateTime;
 use crossterm::event::{KeyCode, KeyEvent};
 use std::sync::Arc;
 use tokio::sync::mpsc::Sender;
@@ -535,6 +536,26 @@ impl App {
             self.job_plan_popup =
                 Some(JobPlansPopup::new(details.clone(), PlanTab::Stage));
         }
+    }
+
+    pub fn format_datetime(&self, timestamp: i64) -> String {
+        DateTime::from_timestamp_millis(timestamp)
+            .map(|dt| {
+                dt.with_timezone(&chrono::Local)
+                    .format("%Y-%m-%d %H:%M:%S")
+                    .to_string()
+            })
+            .unwrap_or_else(|| "Invalid date".to_string())
+    }
+
+    pub fn format_time(&self, timestamp: i64) -> String {
+        DateTime::from_timestamp_millis(timestamp)
+            .map(|dt| {
+                dt.with_timezone(&chrono::Local)
+                    .format("%H:%M:%S")
+                    .to_string()
+            })
+            .unwrap_or_else(|| "Invalid time".to_string())
     }
 }
 

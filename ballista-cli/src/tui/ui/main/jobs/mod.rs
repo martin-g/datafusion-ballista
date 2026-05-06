@@ -149,6 +149,7 @@ pub fn render_jobs(f: &mut Frame, area: Rect, app: &App) {
             &mut table_state,
             &app.jobs_data.sort_column,
             &app.jobs_data.sort_order,
+            app,
         );
         render_scrollbar(f, rects[1], &mut scroll_state);
     } else {
@@ -184,6 +185,7 @@ fn render_jobs_table(
     state: &mut TableState,
     sort_column: &SortColumn,
     sort_order: &SortOrder,
+    app: &App,
 ) {
     let header_style = Style::default()
         .fg(Color::LightYellow)
@@ -226,7 +228,7 @@ fn render_jobs_table(
         let status_cell = render_job_status_cell(job);
         let stage_completion_cell = render_job_stage_completion_cell(job);
         let percent_completion_cell = render_job_percent_completion_cell(job);
-        let start_time_cell = render_job_start_time_cell(job);
+        let start_time_cell = render_job_start_time_cell(job, app);
 
         let cells = vec![
             id_cell,
@@ -257,10 +259,8 @@ fn render_jobs_table(
     frame.render_stateful_widget(t, area, state);
 }
 
-fn render_job_start_time_cell(job: &Job) -> Cell<'_> {
-    let start_time = chrono::DateTime::from_timestamp_millis(job.start_time)
-        .map(|dt| dt.format("%Y-%m-%d %H:%M:%S UTC").to_string())
-        .unwrap_or_else(|| "Invalid Date".to_string());
+fn render_job_start_time_cell<'a>(job: &'a Job, app: &App) -> Cell<'a> {
+    let start_time = app.format_datetime(job.start_time);
     Cell::from(Text::from(start_time).centered())
 }
 
