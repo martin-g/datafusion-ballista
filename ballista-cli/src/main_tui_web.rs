@@ -15,15 +15,32 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#![doc = include_str!("../README.md")]
-pub const BALLISTA_CLI_VERSION: &str = env!("CARGO_PKG_VERSION");
-
-#[cfg(feature = "standalone")]
-pub mod command;
-#[cfg(feature = "standalone")]
-pub mod exec;
-#[cfg(any(feature = "tui", feature = "tui-web"))]
 mod tui;
+#[derive(Debug)]
+struct Args {
+    #[clap(long, help = "Ballista scheduler host")]
+    host: Option<String>,
 
-#[cfg(feature = "standalone")]
-pub use datafusion_cli::{functions, helper, print_format, print_options};
+    #[clap(long, help = "Ballista scheduler port")]
+    port: Option<u16>,
+
+    #[clap(
+        short,
+        long,
+        help = "Reduce printing other than the results and work quietly"
+    )]
+    quiet: bool,
+}
+
+#[tokio::main]
+pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let args = Args {
+        host: Some("localhost".to_string()),
+        port: Some(50050),
+        quiet: false,
+    };
+
+    tui::tui_main()
+        .await
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)
+}

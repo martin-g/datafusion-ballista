@@ -21,25 +21,39 @@ mod error;
 mod event;
 mod http_client;
 mod infrastructure;
+#[cfg(feature = "tui")]
 mod terminal;
 mod ui;
+#[cfg(feature = "tui-web")]
+mod web;
+
+#[cfg(feature = "tui")]
+use ratatui;
+
+#[cfg(feature = "tui-web")]
+use ratzilla::ratatui;
 
 use app::App;
 use event::{Event, EventHandler};
 use ratatui::widgets::ScrollbarState;
 use std::time::Duration;
+#[cfg(feature = "tui")]
 use terminal::TuiWrapper;
+#[cfg(feature = "tui-web")]
+use web::TuiWrapper;
 
 use crate::tui::domain::{
     executors::ExecutorsData,
-    jobs::{JobsData, stages::JobStagesPopup},
+    jobs::{stages::JobStagesPopup, JobsData},
     metrics::MetricsData,
 };
-use crate::tui::{error::TuiError, event::UiData, infrastructure::Settings};
+use crate::tui::{error::TuiError, event::UiData};
+use infrastructure::Settings;
 
 pub type TuiResult<OK> = Result<OK, TuiError>;
 
 pub async fn tui_main() -> TuiResult<()> {
+    #[cfg(feature = "tui")]
     infrastructure::init_file_logger("ballista", "info")?;
     tracing::info!("Starting the Ballista TUI application");
 

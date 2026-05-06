@@ -17,23 +17,26 @@
 
 use crate::tui::TuiResult;
 use crate::tui::{
-    TuiError,
     domain::{
-        SortOrder,
         executors::{ExecutorsData, SortColumn as ExecutorsSortColumn},
         jobs::{
-            CancelJobResult, JobDetails, JobPlansPopup, JobsData, PlanTab,
+            stages::{JobStagesPopup, StagesGraph}, CancelJobResult, JobDetails, JobPlansPopup, JobsData,
+            PlanTab,
             SortColumn as JobsSortColumn,
-            stages::{JobStagesPopup, StagesGraph},
         },
         metrics::MetricsData,
         metrics::SortColumn as MetricsSortColumn,
+        SortOrder,
     },
     event::Event,
     infrastructure::Settings,
+    TuiError,
 };
 use chrono::DateTime;
+#[cfg(feature = "tui")]
 use crossterm::event::{KeyCode, KeyEvent};
+#[cfg(feature = "tui-web")]
+use ratzilla::event::{KeyCode, KeyEvent};
 use std::sync::Arc;
 use tokio::sync::mpsc::Sender;
 
@@ -547,18 +550,68 @@ impl App {
             })
             .unwrap_or_else(|| "Invalid date".to_string())
     }
+
+    /// Present count in human-readable form with K, M, B, T suffixes
+    pub fn human_readable_count(&self, count: usize) -> String {
+        let count = count as u64;
+        let (value, unit) = {
+            if count >= 1_000_000_000_000 {
+                (count as f64 / 1_000_000_000_000.0, " T")
+            } else if count >= 1_000_000_000 {
+                (count as f64 / 1_000_000_000.0, " B")
+            } else if count >= 1_000_000 {
+                (count as f64 / 1_000_000.0, " M")
+            } else if count >= 1_000 {
+                (count as f64 / 1_000.0, " K")
+            } else {
+                return count.to_string();
+            }
+        };
+
+        // Format with appropriate precision
+        // For values >= 100, show 1 decimal place (e.g., 123.4 K)
+        // For values < 100, show 2 decimal places (e.g., 10.12 K)
+        if value >= 100.0 {
+            format!("{value:.1}{unit}")
+        } else {
+            format!("{value:.2}{unit}")
+        }
+    }
+
+    /// Present duration in human-readable form with 2 decimal places
+    pub fn human_readable_duration(&self, nanos: u64) -> String {
+        const NANOS_PER_SEC: f64 = 1_000_000_000.0;
+        const NANOS_PER_MILLI: f64 = 1_000_000.0;
+        const NANOS_PER_MICRO: f64 = 1_000.0;
+
+        let nanos_f64 = nanos as f64;
+
+        if nanos >= 1_000_000_000 {
+            // >= 1 second: show in seconds
+            format!("{:.2}s", nanos_f64 / NANOS_PER_SEC)
+        } else if nanos >= 1_000_000 {
+            // >= 1 millisecond: show in milliseconds
+            format!("{:.2}ms", nanos_f64 / NANOS_PER_MILLI)
+        } else if nanos >= 1_000 {
+            // >= 1 microsecond: show in microseconds
+            format!("{:.2}µs", nanos_f64 / NANOS_PER_MICRO)
+        } else {
+            // < 1 microsecond: show in nanoseconds
+            format!("{nanos}ns")
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::tui::App;
-    use crate::tui::Settings;
     use crate::tui::app::{ExecutorsSortColumn, JobsSortColumn, MetricsSortColumn};
     use crate::tui::domain::{
-        SchedulerState, SortOrder,
-        jobs::Job,
-        jobs::stages::{JobStagesPopup, JobStagesResponse},
+        jobs::stages::{JobStagesPopup, JobStagesResponse}, jobs::Job,
+        SchedulerState,
+        SortOrder,
     };
+    use crate::tui::App;
+    use crate::tui::Settings;
 
     fn make_app() -> App {
         let settings =

@@ -16,7 +16,9 @@
 // under the License.
 
 mod config;
+#[cfg(feature = "tui")]
 mod logging;
 
 pub use config::Settings;
+#[cfg(feature = "tui")]
 pub use logging::init_file_logger;

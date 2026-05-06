@@ -15,18 +15,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
+#[cfg(feature = "tui")]
 use crossterm::event::{EventStream, KeyEvent};
 use futures::{FutureExt, StreamExt};
+#[cfg(feature = "tui-web")]
+use ratzilla::event::KeyEvent;
 use tokio::sync::mpsc;
 
 use crate::tui::domain::{
-    SchedulerState,
     executors::Executor,
     jobs::{
-        Job, JobDetails,
-        stages::{JobStagesResponse, StagesGraph},
+        stages::{JobStagesResponse, StagesGraph}, Job,
+        JobDetails,
     },
     metrics::Metric,
+    SchedulerState,
 };
 
 #[derive(Clone, Debug)]

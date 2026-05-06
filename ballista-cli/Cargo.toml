@@ -29,25 +29,29 @@ repository = "https://github.com/apache/datafusion-ballista"
 readme = "README.md"
 
 [dependencies]
-ballista = { path = "../ballista/client", version = "53.0.0", features = ["standalone"] }
+ballista = { path = "../ballista/client", version = "53.0.0", features = ["standalone"], optional = true }
 chrono = { version = "0.4", default-features = false, features = ["std", "clock"], optional = true }
 clap = { workspace = true, features = ["derive", "cargo"] }
 config = { version = "0.15.19", default-features = false, features = ["yaml"], optional = true }
 crossterm = { version = "0.29.0", features = ["event-stream"], optional = true }
-datafusion = { workspace = true }
-datafusion-cli = { workspace = true }
+datafusion = { workspace = true, optional = true }
+datafusion-cli = { workspace = true, optional = true }
 dirs = "6.0"
 dotparser = { version = "0.3.0", optional = true }
 env_logger = { workspace = true }
 futures = { version = "0.3.31", optional = true }
-mimalloc = { workspace = true }
+mimalloc = { workspace = true, optional = true }
 percent-encoding = { version = "2.3.2", optional = true }
 prometheus-parse = { version = "0.2", optional = true }
-ratatui = { version = "0.30.0", optional = true }
+ratatui = { version = "0.30.0", default-features = false, features = ["layout-cache"], optional = true }
+ratzilla = { version = "0.3.0", optional = true }
 reqwest = { version = "0.13.3", features = ["json"], optional = true }
-rustyline = "17.0.1"
+rustyline = { version = "17.0.1", optional = true }
 serde = { version = "1", features = ["derive"], optional = true }
 serde_json = { version = "1", optional = true }
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+tokio = { workspace = true, features = ["macros", "rt", "sync", "time"] }
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread", "sync", "time", "parking_lot"] }
 tracing = { version = "0.1", optional = true }
 tracing-appender = { version = "0.2", optional = true }
@@ -55,5 +59,24 @@ tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"], option
 tui-big-text = { version = "0.8.4", optional = true }
 
 [features]
-default = ["tui"]
-tui = ["dep:chrono", "dep:config", "dep:crossterm", "dep:dotparser", "dep:futures", "dep:percent-encoding", "dep:prometheus-parse", "dep:ratatui", "dep:reqwest", "dep:serde", "dep:serde_json", "dep:tracing", "dep:tracing-subscriber", "dep:tracing-appender", "dep:tui-big-text"]
+default = ["tui-web"]
+standalone = ["tui", "dep:ballista", "dep:datafusion", "dep:datafusion-cli", "dep:mimalloc", "dep:rustyline"]
+tui = ["dep:chrono", "dep:config", "dep:crossterm", "dep:dotparser", "dep:futures", "dep:percent-encoding",
+    "dep:prometheus-parse", "dep:ratatui", "dep:reqwest", "dep:serde", "dep:serde_json", "dep:tracing",
+    "dep:tracing-subscriber", "dep:tracing-appender", "dep:tui-big-text"]
+tui-web = ["dep:ratzilla", "dep:chrono", "dep:config", "dep:dotparser", "dep:futures",
+    "dep:percent-encoding", "dep:prometheus-parse", "dep:ratatui", "dep:reqwest", "dep:serde", "dep:serde_json",
+    "dep:tracing", "dep:tracing-subscriber", "dep:tui-big-text"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "main"
+path = "src/main.rs"
+required-features = ["default"]
+
+[[bin]]
+name = "main_tui_web"
+path = "src/main_tui_web.rs"
+required-features = ["tui-web"]

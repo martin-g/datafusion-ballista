@@ -15,15 +15,42 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#![doc = include_str!("../README.md")]
-pub const BALLISTA_CLI_VERSION: &str = env!("CARGO_PKG_VERSION");
+use crate::tui::TuiResult;
+use ratzilla::{ratatui::Terminal, DomBackend};
 
-#[cfg(feature = "standalone")]
-pub mod command;
-#[cfg(feature = "standalone")]
-pub mod exec;
-#[cfg(any(feature = "tui", feature = "tui-web"))]
-mod tui;
+pub type Tui = Terminal<DomBackend>;
 
-#[cfg(feature = "standalone")]
-pub use datafusion_cli::{functions, helper, print_format, print_options};
+fn init() -> TuiResult<Tui> {
+    let backend = DomBackend::new()?;
+    let mut terminal = Terminal::new(backend)?;
+    terminal.hide_cursor()?;
+    terminal.clear()?;
+
+    let original_hook = std::panic::take_hook();
+    std::panic::set_hook(Box::new(move |panic_info| {
+        let _ = restore();
+        original_hook(panic_info);
+    }));
+
+    Ok(terminal)
+}
+
+fn restore() -> TuiResult<()> {
+    Ok(())
+}
+
+pub struct TuiWrapper {
+    pub terminal: Tui,
+}
+
+impl TuiWrapper {
+    pub fn new() -> TuiResult<Self> {
+        Ok(Self { terminal: init()? })
+    }
+}
+
+impl Drop for TuiWrapper {
+    fn drop(&mut self) {
+        let _ = restore();
+    }
+}

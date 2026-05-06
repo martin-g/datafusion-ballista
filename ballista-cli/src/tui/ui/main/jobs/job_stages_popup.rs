@@ -17,14 +17,13 @@
 
 use crate::tui::app::App;
 use crate::tui::domain::jobs::stages::JobStageResponse;
-use datafusion::common::human_readable_count;
-use ratatui::Frame;
 use ratatui::layout::Constraint;
 use ratatui::prelude::{Color, Style};
 use ratatui::text::Text;
 use ratatui::widgets::{
     Block, BorderType, Borders, Cell, Clear, HighlightSpacing, Row, Table,
 };
+use ratatui::Frame;
 
 pub(crate) fn render_job_stages_popup(f: &mut Frame, app: &App) {
     let Some(popup) = &app.job_stages_popup else {
@@ -58,7 +57,7 @@ pub(crate) fn render_job_stages_popup(f: &mut Frame, app: &App) {
         .stages
         .iter()
         .enumerate()
-        .map(|(i, stage)| build_stage_row(i, stage));
+        .map(|(i, stage)| build_stage_row(i, stage, app));
 
     let table = Table::new(
         rows,
@@ -87,7 +86,7 @@ pub(crate) fn render_job_stages_popup(f: &mut Frame, app: &App) {
     f.render_stateful_widget(table, area, &mut table_state);
 }
 
-fn build_stage_row(i: usize, stage: &JobStageResponse) -> Row<'static> {
+fn build_stage_row(i: usize, stage: &JobStageResponse, app: &App) -> Row<'static> {
     let bg = if i.is_multiple_of(2) {
         Color::DarkGray
     } else {
@@ -107,11 +106,11 @@ fn build_stage_row(i: usize, stage: &JobStageResponse) -> Row<'static> {
     let p = &stage.task_input_percentiles;
     let input_percentiles = format!(
         "{}/{}/{}/{}/{}",
-        human_readable_count(p.min.try_into().unwrap()),
-        human_readable_count(p.p25.try_into().unwrap()),
-        human_readable_count(p.median.try_into().unwrap()),
-        human_readable_count(p.p75.try_into().unwrap()),
-        human_readable_count(p.max.try_into().unwrap())
+        app.human_readable_count(p.min.try_into().unwrap()),
+        app.human_readable_count(p.p25.try_into().unwrap()),
+        app.human_readable_count(p.median.try_into().unwrap()),
+        app.human_readable_count(p.p75.try_into().unwrap()),
+        app.human_readable_count(p.max.try_into().unwrap())
     );
 
     Row::new(vec![
@@ -121,8 +120,8 @@ fn build_stage_row(i: usize, stage: &JobStageResponse) -> Row<'static> {
                 .style(Style::default().fg(status_color).bold())
                 .centered(),
         ),
-        Cell::from(Text::from(human_readable_count(stage.input_rows)).centered()),
-        Cell::from(Text::from(human_readable_count(stage.output_rows)).centered()),
+        Cell::from(Text::from(app.human_readable_count(stage.input_rows)).centered()),
+        Cell::from(Text::from(app.human_readable_count(stage.output_rows)).centered()),
         Cell::from(Text::from(stage.elapsed_compute.clone()).centered()),
         Cell::from(Text::from(input_percentiles).centered()),
         Cell::from(Text::from(duration_percentiles).centered()),

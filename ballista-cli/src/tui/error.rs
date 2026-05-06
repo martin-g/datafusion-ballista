@@ -17,6 +17,7 @@
 
 use crate::tui::event::Event;
 use config::ConfigError;
+#[cfg(feature = "default")]
 use datafusion::common::DataFusionError;
 use tokio::sync::mpsc::error::SendError;
 use tracing_subscriber::filter::ParseError;
@@ -29,6 +30,7 @@ pub enum TuiError {
     SendError(Box<SendError<Event>>),
     Config(Box<ConfigError>),
     Tracing(Box<ParseError>),
+    #[cfg(feature = "default")]
     DataFusion(Box<DataFusionError>),
 }
 
@@ -41,6 +43,7 @@ impl std::fmt::Display for TuiError {
             TuiError::SendError(err) => write!(f, "Send error: {err}"),
             TuiError::Config(err) => write!(f, "Config error: {err}"),
             TuiError::Tracing(err) => write!(f, "Tracing error: {err}"),
+            #[cfg(feature = "default")]
             TuiError::DataFusion(err) => write!(f, "DataFusion error: {err}"),
         }
     }
@@ -55,6 +58,7 @@ impl std::error::Error for TuiError {
             TuiError::SendError(err) => Some(err.as_ref()),
             TuiError::Config(err) => Some(err.as_ref()),
             TuiError::Tracing(err) => Some(err.as_ref()),
+            #[cfg(feature = "default")]
             TuiError::DataFusion(err) => Some(err.as_ref()),
         }
     }
@@ -96,6 +100,7 @@ impl From<ParseError> for TuiError {
     }
 }
 
+#[cfg(feature = "default")]
 impl From<DataFusionError> for TuiError {
     fn from(err: DataFusionError) -> Self {
         TuiError::DataFusion(Box::new(err))
