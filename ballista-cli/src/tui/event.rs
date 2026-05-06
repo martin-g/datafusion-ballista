@@ -23,13 +23,13 @@ use ratzilla::event::KeyEvent;
 use tokio::sync::mpsc;
 
 use crate::tui::domain::{
-    SchedulerState,
     executors::Executor,
     jobs::{
-        Job, JobDetails,
-        stages::{JobStagesResponse, StagesGraph},
+        stages::{JobStagesResponse, StagesGraph}, Job,
+        JobDetails,
     },
     metrics::Metric,
+    SchedulerState,
 };
 
 #[derive(Clone, Debug)]

@@ -17,20 +17,20 @@
 
 use crate::tui::TuiResult;
 use crate::tui::{
-    TuiError,
     domain::{
-        SortOrder,
         executors::{ExecutorsData, SortColumn as ExecutorsSortColumn},
         jobs::{
-            CancelJobResult, JobDetails, JobPlansPopup, JobsData, PlanTab,
+            stages::{JobStagesPopup, StagesGraph}, CancelJobResult, JobDetails, JobPlansPopup, JobsData,
+            PlanTab,
             SortColumn as JobsSortColumn,
-            stages::{JobStagesPopup, StagesGraph},
         },
         metrics::MetricsData,
         metrics::SortColumn as MetricsSortColumn,
+        SortOrder,
     },
     event::Event,
     infrastructure::Settings,
+    TuiError,
 };
 use chrono::DateTime;
 #[cfg(feature = "tui")]
@@ -610,14 +610,14 @@ impl App {
 
 #[cfg(test)]
 mod tests {
-    use crate::tui::App;
-    use crate::tui::Settings;
     use crate::tui::app::{ExecutorsSortColumn, JobsSortColumn, MetricsSortColumn};
     use crate::tui::domain::{
-        SchedulerState, SortOrder,
-        jobs::Job,
-        jobs::stages::{JobStagesPopup, JobStagesResponse},
+        jobs::stages::{JobStagesPopup, JobStagesResponse}, jobs::Job,
+        SchedulerState,
+        SortOrder,
     };
+    use crate::tui::App;
+    use crate::tui::Settings;
 
     fn make_app() -> App {
         let settings =
