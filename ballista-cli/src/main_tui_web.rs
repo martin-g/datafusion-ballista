@@ -16,24 +16,31 @@
 // under the License.
 
 mod tui;
+
+#[cfg(target_arch = "wasm32")]
+use console_error_panic_hook;
+
 #[derive(Debug)]
 struct Args {
-    #[clap(long, help = "Ballista scheduler host")]
+    // #[clap(long, help = "Ballista scheduler host")]
     host: Option<String>,
 
-    #[clap(long, help = "Ballista scheduler port")]
+    // #[clap(long, help = "Ballista scheduler port")]
     port: Option<u16>,
 
-    #[clap(
-        short,
-        long,
-        help = "Reduce printing other than the results and work quietly"
-    )]
+    // #[clap(
+    //     short,
+    //     long,
+    //     help = "Reduce printing other than the results and work quietly"
+    // )]
     quiet: bool,
 }
 
-#[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    #[cfg(target_arch = "wasm32")]
+    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+
     let args = Args {
         host: Some("localhost".to_string()),
         port: Some(50050),

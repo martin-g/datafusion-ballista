@@ -1001,6 +1001,7 @@ dependencies = [
  "chrono",
  "clap 4.6.1",
  "config",
+ "console_error_panic_hook",
  "crossterm",
  "datafusion",
  "datafusion-cli",

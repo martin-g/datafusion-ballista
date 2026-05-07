@@ -42,7 +42,7 @@ impl HttpClient {
         Ok(Self {
             scheduler_url: config.scheduler.url,
             client: Client::builder()
-                .timeout(Duration::from_millis(config.http.timeout))
+                // .timeout(Duration::from_millis(config.http.timeout))
                 .build()?,
         })
     }

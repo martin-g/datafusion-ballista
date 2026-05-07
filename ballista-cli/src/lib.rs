@@ -18,12 +18,12 @@
 #![doc = include_str!("../README.md")]
 pub const BALLISTA_CLI_VERSION: &str = env!("CARGO_PKG_VERSION");
 
-#[cfg(feature = "standalone")]
+#[cfg(feature = "cli")]
 pub mod command;
-#[cfg(feature = "standalone")]
+#[cfg(feature = "cli")]
 pub mod exec;
 #[cfg(any(feature = "tui", feature = "tui-web"))]
 mod tui;
 
-#[cfg(feature = "standalone")]
+#[cfg(feature = "cli")]
 pub use datafusion_cli::{functions, helper, print_format, print_options};

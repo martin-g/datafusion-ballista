@@ -48,9 +48,9 @@ impl TuiWrapper {
         Ok(Self { terminal: init()? })
     }
 }
-
-impl Drop for TuiWrapper {
-    fn drop(&mut self) {
-        let _ = restore();
-    }
-}
+//
+// impl Drop for TuiWrapper {
+//     fn drop(&mut self) {
+//         let _ = restore();
+//     }
+// }

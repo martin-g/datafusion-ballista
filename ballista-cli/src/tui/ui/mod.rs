@@ -37,8 +37,10 @@ use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout, Rect},
 };
+use std::cell::RefCell;
+use std::rc::Rc;
 
-pub(crate) fn render(f: &mut Frame, app: &App) {
+pub(crate) fn render(f: &mut Frame, app: Rc<RefCell<App>>) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
@@ -48,6 +50,7 @@ pub(crate) fn render(f: &mut Frame, app: &App) {
         ])
         .split(f.area());
 
+    let app = &app.borrow();
     render_header(f, chunks[0], app);
     render_main_view(f, app, chunks[1]);
     render_footer(f, chunks[2], app);

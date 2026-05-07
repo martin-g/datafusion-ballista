@@ -18,13 +18,13 @@
 use crate::tui::app::App;
 use crate::tui::domain::jobs::stages::StageTaskResponse;
 
+use ratatui::Frame;
 use ratatui::layout::Constraint;
 use ratatui::prelude::{Color, Style};
 use ratatui::text::Text;
 use ratatui::widgets::{
     Block, BorderType, Borders, Cell, Clear, HighlightSpacing, Row, Table,
 };
-use ratatui::Frame;
 
 pub(crate) fn render_stage_tasks_popup(f: &mut Frame, app: &App) {
     let Some(popup) = &app.job_stages_popup else {
