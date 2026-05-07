@@ -16,7 +16,7 @@
 // under the License.
 
 use crate::tui::TuiResult;
-use ratzilla::{ratatui::Terminal, DomBackend};
+use ratzilla::{DomBackend, ratatui::Terminal};
 
 pub type Tui = Terminal<DomBackend>;
 

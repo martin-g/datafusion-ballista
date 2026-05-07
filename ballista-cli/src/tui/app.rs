@@ -17,20 +17,20 @@
 
 use crate::tui::TuiResult;
 use crate::tui::{
+    TuiError,
     domain::{
+        SortOrder,
         executors::{ExecutorsData, SortColumn as ExecutorsSortColumn},
         jobs::{
-            stages::{JobStagesPopup, StagesGraph}, CancelJobResult, JobDetails, JobPlansPopup, JobsData,
-            PlanTab,
+            CancelJobResult, JobDetails, JobPlansPopup, JobsData, PlanTab,
             SortColumn as JobsSortColumn,
+            stages::{JobStagesPopup, StagesGraph},
         },
         metrics::MetricsData,
         metrics::SortColumn as MetricsSortColumn,
-        SortOrder,
     },
     event::Event,
     infrastructure::Settings,
-    TuiError,
 };
 use chrono::DateTime;
 #[cfg(feature = "tui")]
@@ -551,7 +551,13 @@ impl App {
             .unwrap_or_else(|| "Invalid date".to_string())
     }
 
+    pub fn format_duration(&self, duration_ms: u64) -> String {
+        const NANOS_PER_MILLI: u64 = 1_000_000;
+        self.human_readable_duration(duration_ms * NANOS_PER_MILLI)
+    }
+
     /// Present count in human-readable form with K, M, B, T suffixes
+    // copied from DataFusion to avoid dependency (easier WASM32 build)
     pub fn human_readable_count(&self, count: usize) -> String {
         let count = count as u64;
         let (value, unit) = {
@@ -604,14 +610,14 @@ impl App {
 
 #[cfg(test)]
 mod tests {
-    use crate::tui::app::{ExecutorsSortColumn, JobsSortColumn, MetricsSortColumn};
-    use crate::tui::domain::{
-        jobs::stages::{JobStagesPopup, JobStagesResponse}, jobs::Job,
-        SchedulerState,
-        SortOrder,
-    };
     use crate::tui::App;
     use crate::tui::Settings;
+    use crate::tui::app::{ExecutorsSortColumn, JobsSortColumn, MetricsSortColumn};
+    use crate::tui::domain::{
+        SchedulerState, SortOrder,
+        jobs::Job,
+        jobs::stages::{JobStagesPopup, JobStagesResponse},
+    };
 
     fn make_app() -> App {
         let settings =

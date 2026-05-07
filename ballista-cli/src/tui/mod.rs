@@ -44,7 +44,7 @@ use web::TuiWrapper;
 
 use crate::tui::domain::{
     executors::ExecutorsData,
-    jobs::{stages::JobStagesPopup, JobsData},
+    jobs::{JobsData, stages::JobStagesPopup},
     metrics::MetricsData,
 };
 use crate::tui::{error::TuiError, event::UiData};

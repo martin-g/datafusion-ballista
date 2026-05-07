@@ -17,13 +17,13 @@
 
 use crate::tui::app::App;
 use crate::tui::domain::jobs::stages::StageTaskResponse;
+use ratatui::Frame;
 use ratatui::layout::Constraint;
 use ratatui::prelude::{Color, Style};
 use ratatui::text::Text;
 use ratatui::widgets::{
     Block, BorderType, Borders, Cell, Clear, HighlightSpacing, Row, Table,
 };
-use ratatui::Frame;
 
 pub(crate) fn render_stage_tasks_popup(f: &mut Frame, app: &App) {
     let Some(popup) = &app.job_stages_popup else {
@@ -124,34 +124,23 @@ fn build_stage_task_row(i: usize, task: &StageTaskResponse, app: &App) -> Row<'s
         Cell::from(Text::from(task.partition_id.to_string()).centered()),
         Cell::from(Text::from(format_datetime(task.scheduled_time, app)).centered()),
         Cell::from(
-            Text::from(format_duration(task.launch_time - task.scheduled_time, app))
+            Text::from(app.format_duration(task.launch_time - task.scheduled_time))
                 .centered(),
         ),
         Cell::from(
-            Text::from(format_duration(
-                task.start_exec_time - task.scheduled_time,
-                app,
-            ))
-            .centered(),
+            Text::from(app.format_duration(task.start_exec_time - task.scheduled_time))
+                .centered(),
         ),
         Cell::from(
-            Text::from(format_duration(
-                task.end_exec_time - task.start_exec_time,
-                app,
-            ))
-            .centered(),
+            Text::from(app.format_duration(task.end_exec_time - task.start_exec_time))
+                .centered(),
         ),
         Cell::from(
-            Text::from(format_duration(task.finish_time - task.scheduled_time, app))
+            Text::from(app.format_duration(task.finish_time - task.scheduled_time))
                 .centered(),
         ),
     ])
     .style(Style::default().bg(bg))
-}
-
-fn format_duration(duration_ms: u64, app: &App) -> String {
-    const NANOS_PER_MILLI: u64 = 1_000_000;
-    app.human_readable_duration(duration_ms * NANOS_PER_MILLI)
 }
 
 fn format_datetime(dt: u64, app: &App) -> String {
