@@ -65,8 +65,8 @@ tokio = { workspace = true, features = ["macros", "rt", "rt-multi-thread", "sync
 default = ["tui-web"]
 cli = ["tui", "dep:ballista", "dep:datafusion", "dep:datafusion-cli", "dep:mimalloc", "dep:rustyline"]
 tui = ["dep:chrono", "dep:config", "dep:crossterm", "dep:dotparser", "dep:futures", "dep:percent-encoding",
-    "dep:prometheus-parse", "dep:ratatui", "dep:reqwest", "dep:serde", "dep:serde_json", "dep:tracing",
-    "dep:tracing-subscriber", "dep:tracing-appender", "dep:tui-big-text"]
+    "dep:prometheus-parse", "dep:ratatui", "ratatui/crossterm", "dep:reqwest", "dep:serde", "dep:serde_json",
+    "dep:tracing", "dep:tracing-subscriber", "dep:tracing-appender", "dep:tui-big-text"]
 tui-web = ["dep:ratzilla", "dep:chrono", "dep:config", "dep:dotparser", "dep:futures",
     "dep:percent-encoding", "dep:prometheus-parse", "dep:ratatui", "dep:reqwest", "dep:serde", "dep:serde_json",
     "dep:tracing", "dep:tracing-subscriber", "dep:tui-big-text", "dep:console_error_panic_hook"]

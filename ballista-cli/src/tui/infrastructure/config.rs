@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use config::{Config, ConfigError, Environment, File, FileFormat};
+use config::ConfigError;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
@@ -44,6 +44,7 @@ http:
 "#;
 
 impl Settings {
+    #[cfg(feature = "tui")]
     pub(crate) fn new() -> Result<Self, ConfigError> {
         let config_dir = dirs::config_dir()
             .or_else(|| dirs::home_dir().map(|h| h.join(".config")))
@@ -65,5 +66,15 @@ impl Settings {
             .build()?;
 
         s.try_deserialize()
+    }
+
+    #[cfg(feature = "tui-web")]
+    pub(crate) fn new() -> Result<Self, ConfigError> {
+        Ok(Self {
+            scheduler: SchedulerSettings {
+                url: "http://localhost:50050".to_string(),
+            },
+            http: HttpSettings { timeout: 2000 },
+        })
     }
 }

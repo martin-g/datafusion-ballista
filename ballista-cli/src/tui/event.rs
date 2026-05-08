@@ -25,13 +25,14 @@ use crate::tui::domain::{
     metrics::Metric,
 };
 #[cfg(feature = "tui")]
-use crossterm::event::{Event, EventStream, KeyEvent};
+use crossterm::event::{EventStream, KeyEvent};
+#[cfg(feature = "tui")]
+use futures::{FutureExt, StreamExt};
 use ratatui::Terminal;
 #[cfg(feature = "tui-web")]
 use ratzilla::event::KeyEvent;
+#[cfg(feature = "tui-web")]
 use ratzilla::{DomBackend, WebRenderer};
-use std::collections::VecDeque;
-use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use tokio::sync::mpsc;
 
@@ -97,59 +98,20 @@ impl EventHandler {
     pub fn new(tick_rate: Duration, terminal: &Terminal<DomBackend>) -> Self {
         let (tx, rx) = mpsc::unbounded_channel();
 
-        struct RatzillaFuture {
-            key_events: Arc<Mutex<VecDeque<KeyEvent>>>,
-        }
-
-        impl Future for RatzillaFuture {
-            type Output = KeyEvent;
-
-            fn poll(
-                self: std::pin::Pin<&mut Self>,
-                cx: &mut std::task::Context<'_>,
-            ) -> std::task::Poll<Self::Output> {
-                if let Some(key_event) = self.key_events.lock().unwrap().pop_front() {
-                    return std::task::Poll::Ready(key_event);
-                }
-                cx.waker().wake_by_ref();
-                std::task::Poll::Pending
-            }
-        }
-
-        unsafe impl Send for RatzillaFuture {}
-        unsafe impl Sync for RatzillaFuture {}
-
-        let key_events = Arc::new(Mutex::new(VecDeque::new()));
-        let terminal_key_events = key_events.clone();
+        let key_tx = tx.clone();
         terminal.on_key_event(move |key_event| {
-            terminal_key_events.lock().unwrap().push_back(key_event)
+            let _ = key_tx.send(Event::Key(key_event));
         });
 
-        let future_key_events = key_events.clone();
-        tokio::spawn(async move {
-            let mut interval = tokio::time::interval(tick_rate);
-
-            loop {
-                let interval_delay = interval.tick();
-                let ratzilla_future = RatzillaFuture {
-                    key_events: future_key_events.clone(),
-                };
-
-                tokio::select! {
-                    _ = interval_delay => {
-                        if tx.send(Event::Tick).is_err() {
-                            break;
-                        }
-                    }
-                    key = ratzilla_future => {
-                      if tx.send(Event::Key(key)).is_err()
-                          {
-                              break;
-                          }
-                    }
-                }
-            }
-        });
+        // tokio::spawn(async move {
+        //     let mut interval = tokio::time::interval(tick_rate);
+        //     loop {
+        //         interval.tick().await;
+        //         if tx.send(Event::Tick).is_err() {
+        //             break;
+        //         }
+        //     }
+        // });
 
         Self { rx }
     }

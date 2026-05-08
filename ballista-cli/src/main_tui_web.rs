@@ -19,6 +19,7 @@ mod tui;
 
 #[cfg(target_arch = "wasm32")]
 use console_error_panic_hook;
+use tokio::runtime::Builder;
 
 #[derive(Debug)]
 struct Args {
@@ -36,18 +37,23 @@ struct Args {
     quiet: bool,
 }
 
-#[tokio::main(flavor = "current_thread")]
-pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
+// #[tokio::main(flavor = "current_thread")]
+pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     #[cfg(target_arch = "wasm32")]
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
 
-    let args = Args {
-        host: Some("localhost".to_string()),
-        port: Some(50050),
-        quiet: false,
-    };
+    Builder::new_current_thread()
+        .enable_all()
+        .build()?
+        .block_on(async {
+            let args = Args {
+                host: Some("localhost".to_string()),
+                port: Some(50050),
+                quiet: false,
+            };
 
-    tui::tui_main()
-        .await
-        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)
+            tui::tui_main()
+                .await
+                .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)
+        })
 }
